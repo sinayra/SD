@@ -11,6 +11,17 @@ typedef struct{
     float prob;
 }tipoFreq;
 
+void imprimeMsg(string txt, ios_base::openmode op, string msg){
+    ofstream saida;
+
+    saida.open("decripta.txt", op);
+    saida << "*******" << txt << "*******" << endl;
+
+    saida << msg << endl << endl;
+
+    saida.close();
+}
+
 void imprimeMsgTab(string txt, ios_base::openmode op, vector< vector<int> > msgtab){
     ofstream saida;
 
@@ -19,11 +30,12 @@ void imprimeMsgTab(string txt, ios_base::openmode op, vector< vector<int> > msgt
     for(vector< vector<int> >::iterator linha = msgtab.begin(); linha != msgtab.end(); linha++){
         for(vector<int>::iterator coluna = linha->begin(); coluna != linha->end(); coluna++){
             //saida << *coluna << '\t';
-            saida << (char)*coluna;
+            if(*coluna != -1)
+                saida << (char)*coluna;
         }
         //saida << endl;
     }
-    saida << endl;
+    saida << endl << endl;
     saida.close();
 }
 
@@ -120,11 +132,11 @@ int achaChr(vector<tipoFreq>coluna, int palavra){
     return -1;
 }
 
-int analisaFrequenciaColuna(vector< vector<int> > msgtab, int chave, vector<tipoFreq> freq, int j){
+int analisaFrequenciaColuna(vector< vector<int> > msgtab, int chave, vector<tipoFreq> freq, int shift){
     vector<tipoFreq>coluna;
     int index;
     int tam = msgtab.size();
-    int maior = 0, shift = 0;
+    int maior = 0;
 
     for(int i = 0; i < tam; i++){
         index = achaChr(coluna, msgtab[i][chave]);
@@ -137,16 +149,17 @@ int analisaFrequenciaColuna(vector< vector<int> > msgtab, int chave, vector<tipo
     }
 
     tam = coluna.size();
+    index = 0;
 
     maior = coluna[0].prob;
     for(int i = 1; i < tam; i++){
         if(maior < coluna[i].prob){
             maior = coluna[i].prob;
-            shift = i;
+            index = i;
         }
     }
 
-    return coluna[shift].chr ^ freq[j].chr;
+    return coluna[index].chr ^ freq[shift].chr;
 
 }
 
@@ -161,25 +174,27 @@ void cesar(vector< vector<int> >& msgtab, int pos, int k){
     }
 }
 
-void vigenere(vector< vector<int> >& msgtab, vector<tipoFreq> freq, int chave){
+void vigenere(vector< vector<int> >& msgtab, vector<tipoFreq> freq, int chavetam, string& chave){
     int k;
-    int j;
+    int shift;
 
-    for(int i = 0; i < chave; i++){
+    for(int i = 0; i < chavetam; i++){
         switch(i){
             case 0:
-                j = 1;
+                shift = 1;
             break;
             case 2:
-                j = 1;
+                shift = 1;
             case 3:
-                j = 1;
+                shift = 1;
             break;
             default:
-                j = 0;
+                shift = 0;
             break;
         }
-        k = analisaFrequenciaColuna(msgtab, i, freq, j);
+        k = analisaFrequenciaColuna(msgtab, i, freq, shift);
+        chave += (char)k;
+
         cesar(msgtab, i, k);
     }
 }
@@ -188,17 +203,20 @@ int main(){
     vector<int> msg;
     vector<tipoFreq> freq;
     vector< vector<int> > msgtab;
+    string chave;
 
-    int chave;
+    int chavetam;
 
     separaInfo(msg, freq);
 
-    chave = supoeTamanhoChave(msg);
+    chavetam = supoeTamanhoChave(msg);
 
-    criaTab(msg, msgtab, chave);
+    criaTab(msg, msgtab, chavetam);
     imprimeMsgTab("Criptograma", ofstream::out , msgtab);
 
-    vigenere(msgtab, freq, chave);
+    vigenere(msgtab, freq, chavetam, chave);
+
+    imprimeMsg("Chave", ofstream::out | ofstream::app, chave);
 
     imprimeMsgTab("Mensagem", ofstream::out | ofstream::app, msgtab);
 
