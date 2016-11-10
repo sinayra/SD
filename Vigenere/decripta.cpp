@@ -55,7 +55,7 @@ void separaInfo(vector<int>& msg, vector<tipoFreq>& freq){
             msg.push_back (m);
         }
 
-        fseek (arq, 147, SEEK_CUR); //+ 147 caracteres desde o número lido
+        fseek (arq, 147, SEEK_CUR); //+ 147 caracteres desde o nÃºmero lido
         do{
             fseek (arq, 9, SEEK_CUR);
 
@@ -181,10 +181,7 @@ void vigenere(vector< vector<int> >& msgtab, vector<tipoFreq> freq, int chavetam
     for(int i = 0; i < chavetam; i++){
         switch(i){
             case 0:
-                shift = 1;
-            break;
             case 2:
-                shift = 1;
             case 3:
                 shift = 1;
             break;
